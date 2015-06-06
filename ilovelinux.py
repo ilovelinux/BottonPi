@@ -1,0 +1,131 @@
+# -*- coding: utf-8 -*-
+import logging.config
+from irc3.plugins.command import command
+import logging
+import irc3
+
+
+@irc3.plugin
+class MyPlugin:
+    """A plugin is a class which take the IrcBot as argument
+    """
+
+    requires = [
+        'modules.nickserv',
+        'irc3.plugins.core',
+        'irc3.plugins.userlist',
+        'irc3.plugins.command',
+#        'irc3.plugins.human',
+    ]
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.log = self.bot.log
+
+    def connection_made(self):
+        """triggered when connection is up"""
+
+    def server_ready(self):
+        """triggered after the server sent the MOTD (require core plugin)"""
+
+    def connection_lost(self):
+        """triggered when connection is lost"""
+
+#    @irc3.event(irc3.rfc.JOIN)
+#    def welcome(self, mask, channel):
+#        """Welcome people who join a channel"""
+#        if mask.nick != self.bot.nick:
+#            self.bot.call_with_human_delay(
+#                self.bot.privmsg, channel, 'Benvenuto %s!' % mask.nick)
+#        else:
+#            self.bot.call_with_human_delay(
+#                self.bot.privmsg, channel, "Ciao ragazzi!")
+
+    @command
+    def echo(self, mask, target, args):
+        """Echo command
+
+            %%echo <words>...
+        """
+        print(args)
+        self.bot.privmsg(target, ' '.join(args['<words>']))
+
+    @command
+    def stats(self, mask, target, args):
+        """Show stats of the channel using the userlist plugin
+
+            %%stats [<channel>]
+        """
+        if args['<channel>']:
+            channel = args['<channel>']
+            target = mask.nick
+        else:
+            channel = target
+        if channel in self.bot.channels:
+            channel = self.bot.channels[channel]
+            message = '{0} users'.format(len(channel))
+            for mode, nicknames in sorted(channel.modes.items()):
+                message += ' - {0}({1})'.format(mode, len(nicknames))
+            self.bot.privmsg(target, message)
+
+    @irc3.extend
+    def my_usefull_method(self):
+        """The extend decorator will allow you to call::
+
+            bot.my_usefull_method()
+
+        """
+
+
+#def main():
+#    # logging configuration
+#    logging.config.dictConfig(irc3.config.LOGGING
+#
+#    # instanciate a bot
+#    irc3.IrcBot(
+#        nick='TheButton', autojoins=['#ilovelinux'],
+#        host='irc.azzurra.org', port=9999, ssl=True,
+#        includes=[
+#            'irc3.plugins.core',
+#            'irc3.plugins.command',
+#            'irc3.plugins.human',
+#            'modules.meteo',
+#            'modules.utility',
+#            'modules.news',
+#            'modules.wiki',
+#            'modules.search',
+#            __name__,  # this register MyPlugin
+#        ]).run()
+def main():                                    
+    config = {                                
+        'nick': 'BottonPi',
+        'autojoins': ['#ilovelinux-it','#discorsi-sull-informatica-in-generale',
+                      '#rpy-italia', '##hackeritalia', '#hackeritalia',
+                      '#semplice-it', '##gnu/linux_guide_e_script', 
+                      '#gnu/linux_guide_e_script'],
+        'host': 'irc.freenode.net',
+        'port': 7000,
+        'ssl': True,
+        'includes': [
+            'irc3.plugins.core',
+            'irc3.plugins.command',
+#            'irc3.plugins.human',
+            'modules.utility',
+            'modules.meteo',
+            'modules.utility',
+            'modules.news',
+            'modules.wiki',
+            'modules.search',
+            'modules.nickserv',
+            'modules.youtube',
+            'modules.twitch',
+            __name__,  # this register MyPlugin
+        ],
+        'irc3.plugins.command': {
+            'cmd': '|'
+        }
+    }
+    irc3.IrcBot(**config).run()
+                                               
+if __name__ == '__main__':
+    main()
