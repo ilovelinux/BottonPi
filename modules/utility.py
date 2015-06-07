@@ -49,7 +49,9 @@ def source(self=None, mask=None, target=None, args=None):
 
         %%source
     """
-    return 'https://bitbucket.org/ilovelinux/bottonpi/src'
+    source = ['Github: https://github.com/ilovelinux/BottonPi/',
+              'Bitbucket: https://bitbucket.org/ilovelinux/bottonpi']
+    return ' · '.join(source)
 
 @command
 def countdown(self=None, mask=None, target=None, args=None):
